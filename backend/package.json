@@ -12,8 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.97",
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.0",
     "zod": "^3.25.67"
