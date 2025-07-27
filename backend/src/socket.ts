@@ -19,12 +19,10 @@ export const setupSocket = (server: HttpServer) => {
       socket.to(roomId).emit('user-joined', username);
     });
 
-    // Handle real-time code sync
     socket.on('code-change', ({ roomId, code }) => {
       socket.to(roomId).emit('code-update', code);
     });
 
-    // Chat messaging
     socket.on('chat-message', ({ roomId, message, username }) => {
       io.to(roomId).emit('chat-receive', {
         message,
@@ -33,7 +31,7 @@ export const setupSocket = (server: HttpServer) => {
       });
     });
 
-    // Disconnection
+
     socket.on('disconnect', () => {
       console.log(`❌ Disconnected: ${socket.id}`);
     });

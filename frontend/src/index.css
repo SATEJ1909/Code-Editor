@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+:root {
+  --neon-purple: #a259f7;
+  --neon-purple-glow: 0 0 8px #a259f7, 0 0 16px #a259f7, 0 0 32px #a259f7;
+  --neon-bg: #f8f7ff;
+  --neon-surface: #e9e4ff;
+  --neon-text: #231942;
+  --neon-accent: #a259f7;
+}
+
+body {
+  background: var(--neon-bg);
+  color: var(--neon-text);
+}
+
+.neon-text {
+  color: var(--neon-purple);
+  text-shadow: var(--neon-purple-glow);
+}
+
+.neon-glow {
+  box-shadow: var(--neon-purple-glow);
+}
+
+.neon-bg {
+  background: var(--neon-surface);
+}
+
+.neon-border {
+  border-color: var(--neon-purple);
+}
