@@ -1,52 +1,60 @@
 /**
  * CodeSync - Collaborative Code Editor
- * Professional dark theme with modern aesthetics
+ * Premium dark theme with refined aesthetics
  */
 
 @import "tailwindcss";
 
 /* ============= CSS Variables ============= */
 :root {
-  /* Primary Colors */
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-light: rgba(99, 102, 241, 0.1);
+  /* Primary Colors - Warmer indigo with coral accent */
+  --primary: #7c5cff;
+  --primary-hover: #6a4de8;
+  --primary-light: rgba(124, 92, 255, 0.12);
+  --primary-glow: rgba(124, 92, 255, 0.35);
 
-  /* Accent Colors */
-  --accent: #22d3ee;
-  --accent-hover: #06b6d4;
+  /* Accent Colors - Warm coral/salmon */
+  --accent: #ff7a5c;
+  --accent-hover: #ff6347;
+  --accent-light: rgba(255, 122, 92, 0.12);
 
-  /* Background Colors */
-  --bg-primary: #0f0f23;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #16213e;
-  --bg-card: #1f2937;
-  --bg-hover: #374151;
+  /* Background Colors - Deep space theme */
+  --bg-primary: #0d0d1a;
+  --bg-secondary: #141424;
+  --bg-tertiary: #1c1c32;
+  --bg-card: #1a1a2f;
+  --bg-hover: #252540;
+  --bg-elevated: #202038;
 
   /* Text Colors */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #f4f4f8;
+  --text-secondary: #a8a8c0;
+  --text-muted: #6b6b85;
 
   /* Border Colors */
-  --border: #334155;
-  --border-light: #475569;
+  --border: #2a2a45;
+  --border-light: #3d3d5c;
+  --border-focus: #7c5cff;
 
   /* Status Colors */
-  --success: #22c55e;
-  --error: #ef4444;
-  --warning: #f59e0b;
-  --info: #3b82f6;
+  --success: #4ade80;
+  --error: #ff6b6b;
+  --warning: #ffb84d;
+  --info: #60a5fa;
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+  --gradient-primary: linear-gradient(135deg, #7c5cff 0%, #9d7aff 50%, #c49bff 100%);
+  --gradient-accent: linear-gradient(135deg, #ff7a5c 0%, #ffb347 100%);
+  --gradient-mesh: radial-gradient(at 40% 20%, rgba(124, 92, 255, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(255, 122, 92, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(124, 92, 255, 0.08) 0px, transparent 50%);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  /* Shadows - Softer with depth */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px var(--primary-glow);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 /* ============= Base Styles ============= */
@@ -66,9 +74,12 @@ body,
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg-primary);
+  background-image: var(--gradient-mesh);
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -96,23 +107,34 @@ a:hover {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  border-radius: 0.5rem;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 .btn-primary {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -215,8 +237,9 @@ a:hover {
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 16px;
   padding: 1.5rem;
+  box-shadow: var(--shadow-inset), var(--shadow-sm);
 }
 
 /* ============= Home Page ============= */
@@ -224,27 +247,53 @@ a:hover {
   min-height: 100vh;
   padding: 2rem;
   background: var(--bg-primary);
-  background-image:
-    radial-gradient(ellipse at top, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  position: relative;
+  overflow: hidden;
+}
+
+.home-page::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(124, 92, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(255, 122, 92, 0.08) 0%, transparent 40%);
+  animation: rotate-bg 60s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate-bg {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .home-hero {
   text-align: center;
-  padding: 3rem 0;
+  padding: 4rem 0 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 .home-title {
-  font-size: 4rem;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
   font-weight: 800;
   margin-bottom: 1rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 .home-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   color: var(--text-secondary);
-  max-width: 500px;
+  max-width: 480px;
   margin: 0 auto;
 }
 
@@ -286,21 +335,48 @@ a:hover {
 }
 
 .action-card {
-  background: var(--bg-secondary);
+  background: rgba(20, 20, 36, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 20px;
   padding: 2rem;
   text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-light);
 }
 
 .action-card h2 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
 .action-card p {
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
 
 .action-card .input {
@@ -328,49 +404,56 @@ a:hover {
 }
 
 .features-section {
-  margin-top: 3rem;
+  margin-top: 4rem;
+  position: relative;
+  z-index: 1;
 }
 
 .features-section h2 {
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.75rem;
   margin-bottom: 2rem;
+  font-weight: 700;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
 }
 
 .feature-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(124, 92, 255, 0.12);
 }
 
 .feature-icon {
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   display: block;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .feature-card h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
 }
 
 .feature-card p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 /* ============= My Rooms Section ============= */
@@ -417,16 +500,17 @@ a:hover {
 .room-card {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 14px;
+  padding: 1.25rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .room-card:hover {
   border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(124, 92, 255, 0.15);
 }
 
 .room-card-header {
