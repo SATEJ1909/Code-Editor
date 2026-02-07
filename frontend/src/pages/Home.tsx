@@ -15,6 +15,7 @@ interface Room {
     name: string;
     language: string;
     isPublic: boolean;
+    hasPassword: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -25,6 +26,7 @@ export default function Home() {
     const { showToast } = useToast();
     const [roomId, setRoomId] = useState('');
     const [roomName, setRoomName] = useState('');
+    const [roomPassword, setRoomPassword] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [myRooms, setMyRooms] = useState<Room[]>([]);
     const [isLoadingRooms, setIsLoadingRooms] = useState(false);
@@ -104,13 +106,16 @@ export default function Home() {
                 },
                 body: JSON.stringify({
                     name: roomName || undefined,
+                    password: roomPassword || undefined,
                 }),
             });
 
             const data = await res.json();
 
             if (res.ok) {
-                showToast('Room created successfully!', 'success');
+                const hasPasswordMsg = roomPassword ? ' (password protected)' : '';
+                showToast(`Room created successfully!${hasPasswordMsg}`, 'success');
+                setRoomPassword('');
                 navigate(`/room/${data.data.roomId}`);
             } else {
                 showToast(data.error || 'Failed to create room', 'error');
@@ -190,6 +195,16 @@ export default function Home() {
                             placeholder="Room name (optional)"
                             className="input"
                         />
+                        <input
+                            type="password"
+                            value={roomPassword}
+                            onChange={(e) => setRoomPassword(e.target.value)}
+                            placeholder="🔒 Room password (optional)"
+                            className="input"
+                        />
+                        {roomPassword && (
+                            <p className="password-hint">🔐 This room will be password protected</p>
+                        )}
                         <button
                             onClick={handleCreateRoom}
                             disabled={isCreating}
@@ -259,7 +274,10 @@ export default function Home() {
                                         onClick={() => navigate(`/room/${room.roomId}`)}
                                     >
                                         <div className="room-card-header">
-                                            <h3 className="room-card-name">{room.name}</h3>
+                                            <h3 className="room-card-name">
+                                                {room.hasPassword && <span title="Password protected">🔒 </span>}
+                                                {room.name}
+                                            </h3>
                                             <button
                                                 className="btn btn-danger btn-sm btn-icon"
                                                 onClick={(e) => handleDeleteRoom(room.roomId, e)}

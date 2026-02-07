@@ -307,6 +307,13 @@ a:hover {
   margin-bottom: 1rem;
 }
 
+.password-hint {
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  margin-top: -0.5rem;
+}
+
 .quick-action {
   text-align: center;
   padding: 2rem;

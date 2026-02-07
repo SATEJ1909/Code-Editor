@@ -41,6 +41,9 @@ interface SocketContextType {
     sendCursorMove: (cursor: { lineNumber: number; column: number }) => void;
     sendChatMessage: (content: string) => void;
     chatMessages: ChatMessage[];
+    typingUsers: Map<string, string>;
+    sendTypingStart: () => void;
+    sendTypingStop: () => void;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -58,6 +61,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
     const [roomUsers, setRoomUsers] = useState<RoomUser[]>([]);
     const [currentRoom, setCurrentRoom] = useState<string | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [typingUsers, setTypingUsers] = useState<Map<string, string>>(new Map());
 
     // Initialize socket connection
     useEffect(() => {
@@ -104,6 +108,23 @@ export function SocketProvider({ children }: SocketProviderProps) {
         // Chat events
         newSocket.on('chat-receive', (message: ChatMessage) => {
             setChatMessages((prev) => [...prev, message]);
+        });
+
+        // Typing events
+        newSocket.on('user-typing', (data: { id: string; username: string }) => {
+            setTypingUsers((prev) => {
+                const next = new Map(prev);
+                next.set(data.id, data.username);
+                return next;
+            });
+        });
+
+        newSocket.on('user-stopped-typing', (data: { id: string }) => {
+            setTypingUsers((prev) => {
+                const next = new Map(prev);
+                next.delete(data.id);
+                return next;
+            });
         });
 
         setSocket(newSocket);
@@ -155,6 +176,18 @@ export function SocketProvider({ children }: SocketProviderProps) {
         }
     }, [socket, currentRoom]);
 
+    const sendTypingStart = useCallback(() => {
+        if (socket && currentRoom) {
+            socket.emit('typing-start', { roomId: currentRoom });
+        }
+    }, [socket, currentRoom]);
+
+    const sendTypingStop = useCallback(() => {
+        if (socket && currentRoom) {
+            socket.emit('typing-stop', { roomId: currentRoom });
+        }
+    }, [socket, currentRoom]);
+
     return (
         <SocketContext.Provider
             value={{
@@ -168,6 +201,9 @@ export function SocketProvider({ children }: SocketProviderProps) {
                 sendCursorMove,
                 sendChatMessage,
                 chatMessages,
+                typingUsers,
+                sendTypingStart,
+                sendTypingStop,
             }}
         >
             {children}

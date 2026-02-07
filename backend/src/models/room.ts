@@ -4,6 +4,7 @@
  */
 
 import mongoose, { Document, Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 export interface IRoomDocument extends Document {
   roomId: string;
@@ -13,8 +14,11 @@ export interface IRoomDocument extends Document {
   code: string;
   participants: mongoose.Types.ObjectId[];
   isPublic: boolean;
+  password?: string;
+  hasPassword: boolean;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const RoomSchema = new Schema<IRoomDocument>(
@@ -73,11 +77,43 @@ const RoomSchema = new Schema<IRoomDocument>(
       type: Boolean,
       default: true,
     },
+    password: {
+      type: String,
+      select: false, // Don't return password by default
+    },
+    hasPassword: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Hash password before saving
+RoomSchema.pre('save', async function (next) {
+  if (!this.isModified('password') || !this.password) {
+    return next();
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    this.hasPassword = true;
+    next();
+  } catch (error: any) {
+    next(error);
+  }
+});
+
+// Method to compare password
+RoomSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  if (!this.password) return true; // No password set
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 // Index for faster lookups
 RoomSchema.index({ owner: 1 });

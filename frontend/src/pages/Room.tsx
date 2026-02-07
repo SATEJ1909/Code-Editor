@@ -168,6 +168,38 @@ export default function Room() {
         showToast('Room link copied!', 'success');
     };
 
+    // Download code as file
+    const handleDownload = () => {
+        const extensions: Record<string, string> = {
+            javascript: 'js',
+            typescript: 'ts',
+            python: 'py',
+            java: 'java',
+            cpp: 'cpp',
+            c: 'c',
+            csharp: 'cs',
+            go: 'go',
+            rust: 'rs',
+            ruby: 'rb',
+            php: 'php',
+            html: 'html',
+            css: 'css',
+            json: 'json',
+            markdown: 'md',
+            sql: 'sql',
+            plaintext: 'txt',
+        };
+        const ext = extensions[language] || 'txt';
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `code.${ext}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Code downloaded!', 'success');
+    };
+
     // Run code using Piston API
     const handleRunCode = async () => {
         setShowOutput(true);
@@ -243,6 +275,13 @@ export default function Room() {
                         title="Copy room link"
                     >
                         🔗 Share
+                    </button>
+                    <button
+                        onClick={handleDownload}
+                        className="btn btn-outline btn-sm"
+                        title="Download code"
+                    >
+                        ⬇ Download
                     </button>
                     <button
                         onClick={handleSave}

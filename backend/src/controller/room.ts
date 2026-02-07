@@ -13,6 +13,11 @@ const createRoomSchema = z.object({
     name: z.string().min(1).max(100).optional(),
     language: z.string().optional(),
     isPublic: z.boolean().optional(),
+    password: z.string().min(4).max(50).optional(),
+});
+
+const joinRoomSchema = z.object({
+    password: z.string().optional(),
 });
 
 /**
@@ -38,7 +43,7 @@ export const createRoom = async (
             return;
         }
 
-        const { name, language, isPublic } = validation.data;
+        const { name, language, isPublic, password } = validation.data;
 
         // Generate unique room ID
         const roomId = randomUUID().slice(0, 8);
@@ -50,6 +55,8 @@ export const createRoom = async (
             language: language || 'javascript',
             isPublic: isPublic ?? true,
             participants: [req.user.userId],
+            password: password || undefined,
+            hasPassword: !!password,
         });
 
         await room.save();
@@ -61,6 +68,7 @@ export const createRoom = async (
                 name: room.name,
                 language: room.language,
                 isPublic: room.isPublic,
+                hasPassword: room.hasPassword,
             },
         });
     } catch (error) {
@@ -157,8 +165,11 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
         }
 
         const { roomId } = req.params;
+        const validation = joinRoomSchema.safeParse(req.body);
+        const { password } = validation.success ? validation.data : { password: undefined };
 
-        const room = await RoomModel.findOne({ roomId });
+        // Find room with password field included
+        const room = await RoomModel.findOne({ roomId }).select('+password');
 
         if (!room) {
             res.status(404).json({
@@ -166,6 +177,27 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
                 error: 'Room not found',
             });
             return;
+        }
+
+        // Check if room has password and verify it
+        if (room.hasPassword && room.password) {
+            if (!password) {
+                res.status(403).json({
+                    success: false,
+                    error: 'Password required',
+                    requiresPassword: true,
+                });
+                return;
+            }
+
+            const isValid = await room.comparePassword(password);
+            if (!isValid) {
+                res.status(403).json({
+                    success: false,
+                    error: 'Invalid password',
+                });
+                return;
+            }
         }
 
         // Add user to participants if not already present

@@ -54,7 +54,7 @@ export default function CodeEditor({
     const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
     const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
     const decorationsRef = useRef<string[]>([]);
-    const { socket, sendCodeChange, sendCursorMove } = useSocket();
+    const { socket, sendCodeChange, sendCursorMove, sendTypingStart, sendTypingStop } = useSocket();
     const [remoteCursors, setRemoteCursors] = useState<Map<string, RemoteCursor>>(
         new Map()
     );
@@ -76,7 +76,11 @@ export default function CodeEditor({
         });
     };
 
-    // Handle local code changes
+    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isTypingRef = useRef(false);
+
+    // Handle local code changes with debouncing
     const handleChange: OnChange = useCallback(
         (value) => {
             if (isRemoteChangeRef.current) return;
@@ -84,10 +88,32 @@ export default function CodeEditor({
             const code = value || '';
             onCodeChange?.(code);
 
-            // Debounced sync to server
-            sendCodeChange(code);
+            // Signal that we started typing
+            if (!isTypingRef.current) {
+                isTypingRef.current = true;
+                sendTypingStart();
+            }
+
+            // Clear previous typing timeout
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+
+            // Stop typing after 1 second of inactivity
+            typingTimeoutRef.current = setTimeout(() => {
+                isTypingRef.current = false;
+                sendTypingStop();
+            }, 1000);
+
+            // Debounced sync to server (300ms)
+            if (debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
+            debounceTimeoutRef.current = setTimeout(() => {
+                sendCodeChange(code);
+            }, 300);
         },
-        [onCodeChange, sendCodeChange]
+        [onCodeChange, sendCodeChange, sendTypingStart, sendTypingStop]
     );
 
     // Listen for remote code updates

@@ -205,6 +205,24 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
       }
     });
 
+    // ============= Typing Indicators =============
+    socket.on('typing-start', ({ roomId }) => {
+      if (currentUser) {
+        socket.to(roomId).emit('user-typing', {
+          id: currentUser.id,
+          username: currentUser.username,
+        });
+      }
+    });
+
+    socket.on('typing-stop', ({ roomId }) => {
+      if (currentUser) {
+        socket.to(roomId).emit('user-stopped-typing', {
+          id: currentUser.id,
+        });
+      }
+    });
+
     // ============= Chat Messages =============
     socket.on('chat-message', async ({ roomId, content }) => {
       if (!currentUser || !content.trim()) return;

@@ -7,7 +7,7 @@ import { useSocket } from '../contexts/SocketContext';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function UserList() {
-    const { roomUsers } = useSocket();
+    const { roomUsers, typingUsers } = useSocket();
     const { user } = useAuth();
 
     return (
@@ -18,31 +18,34 @@ export default function UserList() {
             </div>
 
             <div className="user-list-items">
-                {roomUsers.map((roomUser) => (
-                    <div
-                        key={roomUser.id}
-                        className={`user-item ${roomUser.id === user?.id ? 'current-user' : ''}`}
-                    >
+                {roomUsers.map((roomUser) => {
+                    const isTyping = typingUsers.has(roomUser.id);
+                    return (
                         <div
-                            className="user-avatar"
-                            style={{ backgroundColor: roomUser.color }}
+                            key={roomUser.id}
+                            className={`user-item ${roomUser.id === user?.id ? 'current-user' : ''}`}
                         >
-                            {roomUser.username.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="user-info">
-                            <span className="user-name">
-                                {roomUser.username}
-                                {roomUser.id === user?.id && ' (you)'}
-                            </span>
-                            <span
-                                className="user-status"
-                                style={{ color: roomUser.color }}
+                            <div
+                                className="user-avatar"
+                                style={{ backgroundColor: roomUser.color }}
                             >
-                                ● Online
-                            </span>
+                                {roomUser.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="user-info">
+                                <span className="user-name">
+                                    {roomUser.username}
+                                    {roomUser.id === user?.id && ' (you)'}
+                                </span>
+                                <span
+                                    className={`user-status ${isTyping ? 'typing' : ''}`}
+                                    style={{ color: roomUser.color }}
+                                >
+                                    {isTyping ? '✏️ typing...' : '● Online'}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
 
                 {roomUsers.length === 0 && (
                     <div className="user-list-empty">
